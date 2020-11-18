@@ -15,7 +15,7 @@
 import louvain
 import igraph as ig
 import time 
-from numba import jit, cuda 
+from numba import cuda 
 
 def readNetwork(filename):
 	return ig.Graph.Read_Ncol(open(filename), names=False, weights="if_present", directed=True)
@@ -43,7 +43,7 @@ def leafAdd(graph, partition, leafConnections, leafNodes):
   partition.renumber_communities()
   return partition
 
-@jit(target ="cuda")
+@cuda.jit()
 def performExperiment(G, threshold, comm_select, leafExclude):
 	t_start = time.time()
 	part = louvain.find_partition(G, louvain.ModularityVertexPartition, threshold=threshold, comm_select=comm_select)
