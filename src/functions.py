@@ -76,7 +76,7 @@ def find_partition(graph, partition_type, threshold, comm_select=1, initial_memb
                              **kwargs)
   optimiser = Optimiser()
   optimiser.consider_comms = comm_select
-  print("COMM SELECT METHOD: ", comm_select)
+  print("COMM SELECT METHOD: {}", comm_select)
   if (not seed is None):
     optimiser.set_rng_seed(seed)
 
