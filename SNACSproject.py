@@ -15,6 +15,7 @@
 import louvain
 import igraph as ig
 import time 
+from numba import jit, cuda 
 
 def readNetwork(filename):
 	return ig.Graph.Read_Ncol(open(filename), names=False, weights="if_present", directed=True)
@@ -42,12 +43,8 @@ def leafAdd(graph, partition, leafConnections, leafNodes):
   partition.renumber_communities()
   return partition
 
+@jit(target ="cuda")
 def performExperiment(G, threshold, comm_select, leafExclude):
-	print("_______________")
-	print("LeafNodeExclusion used?: ", leafExclude)
-	if leafExclude:
-		leaves, leafConnections = leafPrune(G)
-	print("Network size: ", )
 	t_start = time.time()
 	part = louvain.find_partition(G, louvain.ModularityVertexPartition, threshold=threshold, comm_select=comm_select)
 	t_end = time.time()
@@ -64,4 +61,8 @@ if __name__ == "__main__":
 	G = readNetwork("medium.tsv")
 	settings_list = [(0.0, 1, False), (0.01, 1, False)]
 	for setting in settings_list:
+		print("______________________________")
+		print("LeafNodeExclusion used?: ", leafExclude)
+		if setting[2]:
+			leaves, leafConnections = leafPrune(G)
 		print(performExperiment(G, setting[0], setting[1], setting[2]))
