@@ -15,7 +15,7 @@
 import louvain
 import igraph as ig
 import time 
-from numba import jit 
+from numba import cuda, jit 
 print(cuda.gpus)
 
 def readNetwork(filename):
