@@ -62,7 +62,7 @@ if __name__ == "__main__":
 	settings_list = [(0.0, 1, False), (0.01, 1, False)]
 	for setting in settings_list:
 		print("______________________________")
-		print("LeafNodeExclusion used?: ", leafExclude)
+		print("LeafNodeExclusion used?: ", setting[2])
 		if setting[2]:
 			leaves, leafConnections = leafPrune(G)
 		print(performExperiment(G, setting[0], setting[1], setting[2]))
