@@ -66,4 +66,4 @@ if __name__ == "__main__":
 		print("LeafNodeExclusion used?: ", setting[2])
 		if setting[2]:
 			leaves, leafConnections = leafPrune(G)
-		print(performExperiment[,threadsperblock](G, setting[0], setting[1], setting[2]))
+		print(performExperiment(G, setting[0], setting[1], setting[2]))
