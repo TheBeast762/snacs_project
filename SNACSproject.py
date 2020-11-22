@@ -21,7 +21,7 @@ def readNetwork(filename):
 	return ig.Graph.Read_Ncol(open(filename), names=False, weights="if_present", directed=True)
 
 def leafPrune(graph):#{leafNode, Connection}
-  nodeDeg = dict(zip([vertex.index for vertex in graph.vs], graph.degree(graph.vs)))#{node: degree}
+  nodeDeg = dict(zip([vertex for vertex in graph.vs], graph.degree(graph.vs)))#{node: degree}
   leafNodes = [k for k,v in nodeDeg.items() if v == 1]#all nodes degree 1
   leafSources = [edge.tuple for edge in graph.es.select(_incident=leafNodes)]#all edges connected to leaf nodes #leafEdgeData.attributes() if applicable
   leafTargets = [edge.tuple for edge in graph.es.select(_target_in=leafNodes)]
@@ -59,7 +59,8 @@ if __name__ == "__main__":
 	# 4 = RAND_NEIGH_COMM (Traag's Improved Method)
 	method_dict = {1: "ALL_COMMS", 2: "ALL_NEIGH_COMMS", 3: "RAND_COMM", 4:"RAND_NEIGH_COMM"}
 	settings_list = [(0.0, 4, False), (0.0, 4, True)]#threshold, comm_select, leaf_node_exclusion
-	networks = [readNetwork("soc-academia.tsv"), readNetwork("cvxbqp1.tsv"), readNetwork("ford2.tsv"), readNetwork("aff-amazon-copurchases.tsv")]#50000, 100196, 200169, 402439
+	networks = [readNetwork("cvxbqp1.tsv"), readNetwork("ford2.tsv"), readNetwork("soc-academia.tsv"), readNetwork("aff-amazon-copurchases.tsv")]#50000, 100196, 200169, 402439
+	
 	q_dict = {}
 	t_dict = {}
 	for network in networks:
@@ -75,15 +76,15 @@ if __name__ == "__main__":
 			else:
 				q_dict[setting] = [(network_size, q)]
 				t_dict[setting] = [(network_size, t)]
-
+	
 	print(q_dict)
 	print(t_dict)
 	print("Start plotting...")
 	f, ax = plt.subplots(figsize=(10,8))
-	for key, val in q_dict.items():
+	for key, val in q_dict.items():#setting: [network_size, modularity]
 		x,y = zip(*val)
+		plt.plot(x,y)
 		plt.scatter(x,y)
-		plt.plot(x,y)#network_size, modularity
 	plt.xlabel("n")
 	ax.set_xscale('log')
 	plt.ylabel("Q")
@@ -91,10 +92,10 @@ if __name__ == "__main__":
 	plt.savefig('modularityPlot.png')
 
 	f, ax = plt.subplots(figsize=(10,8))
-	for key, val in t_dict.items():
+	for key, val in t_dict.items():#setting: [network_size, modularity]
 		x,y = zip(*val)
+		plt.plot(x,y)
 		plt.scatter(x,y)
-		plt.plot(x,y)#network_size, time
 	plt.xlabel("n")
 	ax.set_xscale('log')
 	plt.ylabel("Time (s)")
