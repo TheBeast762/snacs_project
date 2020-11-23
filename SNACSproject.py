@@ -23,7 +23,7 @@ def readNetwork(filename):
 def leafPrune(graph):#{leafNode, Connection}
   nodeDeg = dict(zip([vertex for vertex in graph.vs], graph.degree(graph.vs)))#{node: degree}
   leafNodes = [k for k,v in nodeDeg.items() if v == 1]#all nodes degree 1
-  leafSources = [edge.tuple for edge in graph.es.select(_incident=leafNodes)]#all edges connected to leaf nodes #leafEdgeData.attributes() if applicable
+  leafSources = [edge.tuple for edge in graph.es.select(_source_in=leafNodes)]#all edges connected to leaf nodes #leafEdgeData.attributes() if applicable
   leafTargets = [edge.tuple for edge in graph.es.select(_target_in=leafNodes)]
   graph.delete_edges(leafSources + leafTargets)
   return leafSources, leafTargets
@@ -37,6 +37,7 @@ def leafAdd(graph, partition, leafSources, leafTargets):
 	for edge in leafTargets:
 		partition.move_node(edge[1], partition._membership[edge[0]])
 	t_end = time.time()
+	print("LeafAdd duration: ", t_end-t_start)
 	partition.renumber_communities()
 	return partition, (t_end-t_start)
 
