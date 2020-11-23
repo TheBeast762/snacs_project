@@ -69,16 +69,19 @@ if __name__ == "__main__":
 	method_dict = {1: "ALL_COMMS", 2: "ALL_NEIGH_COMMS", 3: "RAND_COMM", 4:"RAND_NEIGH_COMM"}
 	settings_list = [(0.0, 2, False), (0.0, 2, True), (0.0, 4, False), (0.0, 4, True)]#threshold, comm_select, leaf_node_exclusion
 	networks = [readNetwork("rec-amazon.tsv"), readNetwork("soc-academia.tsv"), readNetwork("rt-higgs.tsv"), readNetwork("inf-roadNet-PA.tsv")]#100196, 125K, 200K, 425K, 1M
-	#= [readNetwork("soc-academia.tsv")]#have leafNodes
 	q_dict = {}
 	t_dict = {}
+	leaves_amount = []
+	network_sizes = []
 	for network in networks:
 		network_size = network.vcount()
+		network_sizes.append(network_size)
 		for setting in settings_list:
 			print("________________________________________")
 			print("LeafNodeExclusion used?: ", setting[2])
 			q, t, nLeaves = performExperiment(network, setting[0], setting[1], setting[2])
 			print(q,t)
+			leaves_amount.append(nLeaves)
 			if setting in q_dict:
 				q_dict[setting].append((network_size, q))
 				t_dict[setting].append((network_size, t))
@@ -97,6 +100,9 @@ if __name__ == "__main__":
 	plt.xlabel("n")
 	ax.set_xscale('log')
 	plt.ylabel("Q")
+	ax2 = ax.twinx()
+	ax2.set_ylabel("Leaf Nodes")
+	ax2.bar(x=network_sizes, width=0.1 ,height=leaves_amount, fc=(0, 0, 0, 0.1))
 	ax.legend(["τ:{}, {}, LNE:{}".format(setting[0],method_dict[setting[1]],setting[2]) for setting in q_dict.keys()])
 	plt.savefig('modularityPlot.png')
 
@@ -108,5 +114,8 @@ if __name__ == "__main__":
 	plt.xlabel("n")
 	ax.set_xscale('log')
 	plt.ylabel("Time (s)")
+	ax2 = ax.twinx()
+	ax2.set_ylabel("Leaf Nodes")
+	ax2.bar(x=network_sizes, width=0.1 ,height=leaves_amount, fc=(0, 0, 0, 0.1))
 	ax.legend(["τ:{}, {}, LNE:{}".format(setting[0],method_dict[setting[1]],setting[2]) for setting in t_dict.keys()])
 	plt.savefig('timePlot.png')
