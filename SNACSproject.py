@@ -21,14 +21,18 @@ def readNetwork(filename):
 	return ig.Graph.Read_Ncol(open(filename), names=False, weights="if_present", directed=True)
 
 def leafPrune(graph):#{leafNode, Connection}
-  nodeDeg = dict(zip([vertex for vertex in graph.vs], graph.degree(graph.vs)))#{node: degree}
-  leafNodes = [k for k,v in nodeDeg.items() if v == 1]#all nodes degree 1
+  leafNodes = [v.index for v in graph.vs.select(_degree_eq=1)]#all nodes degree 1
+  print("----- {} leafNodes found in the Network-----".format(len(leafNodes)))
+  if len(leafNodes) == 0:
+  	return [], []
   leafSources = [edge.tuple for edge in graph.es.select(_source_in=leafNodes)]#all edges connected to leaf nodes #leafEdgeData.attributes() if applicable
   leafTargets = [edge.tuple for edge in graph.es.select(_target_in=leafNodes)]
   graph.delete_edges(leafSources + leafTargets)
   return leafSources, leafTargets
 
 def leafAdd(graph, partition, leafSources, leafTargets):
+	if len(leafSources) == 0 or len(leafTargets) == 0:
+		return partition, 0.0
 	t_start = time.time()
 	graph.add_edges(leafSources + leafTargets)#reconnect edges to graph
 	partition = louvain.ModularityVertexPartition(graph, initial_membership=partition._membership)
@@ -44,7 +48,9 @@ def leafAdd(graph, partition, leafSources, leafTargets):
 def performExperiment(G, threshold, comm_select, leafExclude):
 	leafTime = 0.0
 	if leafExclude:
+		print("PRE network size: ", G.ecount())
 		leafSources, leafTargets = leafPrune(G)
+		print("Pruned network size: ", G.ecount())
 	t_start = time.time()
 	part = louvain.find_partition(G, louvain.ModularityVertexPartition, threshold=threshold, comm_select=comm_select)
 	t_end = time.time()
@@ -59,9 +65,9 @@ if __name__ == "__main__":
 	# 3 = RAND_COMM
 	# 4 = RAND_NEIGH_COMM (Traag's Improved Method)
 	method_dict = {1: "ALL_COMMS", 2: "ALL_NEIGH_COMMS", 3: "RAND_COMM", 4:"RAND_NEIGH_COMM"}
-	settings_list = [(0.0, 4, False), (0.0, 4, True)]#threshold, comm_select, leaf_node_exclusion
+	settings_list = [ (0.0, 4, True)]#threshold, comm_select, leaf_node_exclusion
 	networks = [readNetwork("cvxbqp1.tsv"), readNetwork("ford2.tsv"), readNetwork("soc-academia.tsv"), readNetwork("aff-amazon-copurchases.tsv")]#50000, 100196, 200169, 402439
-	
+	= [readNetwork("soc-academia.tsv")]#have leafNodes
 	q_dict = {}
 	t_dict = {}
 	for network in networks:
