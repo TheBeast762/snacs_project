@@ -57,7 +57,8 @@ def performExperiment(G, threshold, comm_select, leafExclude):
 	t_end = time.time()
 	if leafExclude:
 		part, leafTime = leafAdd(G, part, leafSources, leafTargets)
-	return part.quality(), (t_end-t_start+leafTime), nLeaves
+		return part.quality(), (t_end-t_start+leafTime), nLeaves
+	return part.quality(), (t_end-t_start+leafTime), 0
 
 if __name__ == "__main__":
 	#Community Select methods:
