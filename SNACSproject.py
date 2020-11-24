@@ -28,9 +28,8 @@ def leafPrune(graph):#{leafNode, Connection}
 	return leafNodes, graph.subgraph(vertices=graph.vs.select(_degree_gt=1))
 
 def leafAdd(graph, partition, leafNodes):
-	if len(leafSources) == 0 or len(leafTargets) == 0:
-		return partition, 0.0
-
+	if not leafNodes:
+		return partition
 	n_comm = len(partition._membership)
 	for leaf in leafNodes:
 		partition._membership.insert(leaf, n_comm)
