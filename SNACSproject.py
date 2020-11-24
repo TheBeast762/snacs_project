@@ -99,7 +99,7 @@ if __name__ == "__main__":
 		plt.bar(ind + ix*0.1, val, width = 0.25, align="edge")
 	plt.xticks(ticks=range(len(network_sizes)), labels=network_sizes)
 	plt.ylabel("Q")
-	ax.legend(["{}, LNE:{}".format(method_dict[setting[1]],setting[2]) for setting in q_dict.keys()])
+	ax.legend(["τ:{}, {}".format(setting[0], method_dict[setting[1]]) for setting in q_dict.keys()])
 	plt.savefig('modularityPlot.png')
 
 	f, ax = plt.subplots(figsize=(10,8))
@@ -109,5 +109,5 @@ if __name__ == "__main__":
 		plt.bar(ind + ix*0.1, [tup[1] for tup in val], width = 0.25, bottom=[tup[0] for tup in val], color='b')
 	plt.xticks(ticks=range(len(network_sizes)), labels=network_sizes)
 	plt.ylabel("Time (s)")
-	ax.legend(bars, ["{}, LNE:{}".format(method_dict[setting[1]],setting[2]) for setting in t_dict.keys()])
+	ax.legend(bars, ["τ:{}, {}".format(setting[0], method_dict[setting[1]]) for setting in q_dict.keys()])
 	plt.savefig('timePlot.png')
