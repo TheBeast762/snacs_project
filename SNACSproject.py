@@ -16,49 +16,53 @@ import louvain
 import igraph as ig
 import time 
 import matplotlib.pyplot as plt
+import numpy as np 
 
-def readNetwork(filename):
+def readNetwork(filename, directed=True):
 	print("reading {}...".format(filename))
-	return ig.Graph.Read_Ncol(open(filename), names=False, weights="if_present", directed=True)
+	return ig.Graph.Read_Ncol(open(filename), names=False, weights="if_present", directed=directed)
 
 def leafPrune(graph):#{leafNode, Connection}
-  leafNodes = [v.index for v in graph.vs.select(_degree_eq=1)]#all nodes degree 1
-  if len(leafNodes) == 0:
-  	return [], [], 0
-  leafSources = [edge.tuple for edge in graph.es.select(_source_in=leafNodes)]#all edges connected to leaf nodes #leafEdgeData.attributes() if applicable
-  leafTargets = [edge.tuple for edge in graph.es.select(_target_in=leafNodes)]
-  graph.delete_edges(leafSources + leafTargets)
-  return leafSources, leafTargets, len(leafNodes)
+	leafNodes = [v.index for v in graph.vs.select(_degree_lt=2)]#all nodes degree 0-1
+	if len(leafNodes) == 0:
+		return [], []
+	return leafNodes, graph.subgraph(vertices=graph.vs.select(_degree_gt=1))
 
-def leafAdd(graph, partition, leafSources, leafTargets):
+def leafAdd(graph, partition, leafNodes):
 	if len(leafSources) == 0 or len(leafTargets) == 0:
 		return partition, 0.0
-	t_start = time.time()
-	graph.add_edges(leafSources + leafTargets)#reconnect edges to graph
-	partition = louvain.ModularityVertexPartition(graph, initial_membership=partition._membership)
+
+	n_comm = len(partition._membership)
+	for leaf in leafNodes:
+		partition._membership.insert(leaf, n_comm)
+		n_comm += 1
+
+	part = louvain.ModularityVertexPartition(graph, initial_membership=partition._membership)
+	leafSources = [edge.tuple for edge in graph.es.select(_source_in=leafNodes)]#all edges connected to leaf nodes #leafEdgeData.attributes() if applicable
+	leafTargets = [edge.tuple for edge in graph.es.select(_target_in=leafNodes)]
 	for edge in leafSources:
-		partition.move_node(edge[0], partition._membership[edge[1]])
+		part.move_node(edge[0], partition._membership[edge[1]])
 	for edge in leafTargets:
-		partition.move_node(edge[1], partition._membership[edge[0]])
-	t_end = time.time()
-	print("LeafAdd duration: ", t_end-t_start)
-	partition.renumber_communities()
-	return partition, (t_end-t_start)
+		part.move_node(edge[1], partition._membership[edge[0]])
+	part.renumber_communities()
+	return part
 
 def performExperiment(G, threshold, comm_select, leafExclude):
-	leafTime = 0.0
 	print("Full network size: ", G.vcount(), G.ecount())
 	if leafExclude:
-		leafSources, leafTargets, nLeaves = leafPrune(G)
-		print("----- {} leafNodes found in the Network-----".format(nLeaves))
-		print("Pruned network size: ", G.ecount())
-	t_start = time.time()
-	part = louvain.find_partition(G, louvain.ModularityVertexPartition, threshold=threshold, comm_select=comm_select)
-	t_end = time.time()
-	if leafExclude:
-		part, leafTime = leafAdd(G, part, leafSources, leafTargets)
-		return part.quality(), (t_end-t_start+leafTime), nLeaves
-	return part.quality(), (t_end-t_start+leafTime), 0
+		leaves, subGraph = leafPrune(G)
+		print("----- {} leafNodes found in the Network-----".format(len(leaves)))
+		print("Pruned network size: ", subGraph.vcount(), subGraph.ecount())
+		t_start = time.time()
+		part = louvain.find_partition(subGraph, louvain.ModularityVertexPartition, threshold=threshold, comm_select=comm_select)
+		part = leafAdd(G, part, leaves)
+		t_end = time.time()
+		return part.quality(), (t_end-t_start), len(leaves)
+	else: 
+		t_start = time.time()
+		part = louvain.find_partition(G, louvain.ModularityVertexPartition, threshold=threshold, comm_select=comm_select)
+		t_end = time.time()
+	return part.quality(), (t_end-t_start), 0
 
 if __name__ == "__main__":
 	#Community Select methods:
@@ -67,13 +71,14 @@ if __name__ == "__main__":
 	# 3 = RAND_COMM
 	# 4 = RAND_NEIGH_COMM (Traag's Improved Method)
 	method_dict = {1: "ALL_COMMS", 2: "ALL_NEIGH_COMMS", 3: "RAND_COMM", 4:"RAND_NEIGH_COMM"}
-	settings_list = [(0.0, 2, False), (0.0, 2, True), (0.0, 4, False), (0.0, 4, True)]#threshold, comm_select, leaf_node_exclusion
-	networks = [readNetwork("rec-amazon.tsv"), readNetwork("soc-academia.tsv"), readNetwork("rt-higgs.tsv"), readNetwork("inf-roadNet-PA.tsv")]#100196, 125K, 200K, 425K, 1M
+	settings_list = [(0.0, 2, False), (0.0, 2, True)]#threshold, comm_select, leaf_node_exclusion
+	networks = [readNetwork("rec-amazon.tsv"), readNetwork("soc-academia.tsv"), readNetwork("rt-higgs.tsv"), readNetwork("inf-roadNet-PA.tsv"), readNetwork("inf-netherlands_osm.tsv", False)]#
 	q_dict = {}
 	t_dict = {}
 	leaves_amount = []
 	network_sizes = []
 	nLeaves = 0
+
 	for network in networks:
 		network_size = network.vcount()
 		network_sizes.append(network_size)
@@ -101,10 +106,6 @@ if __name__ == "__main__":
 	plt.xlabel("n")
 	ax.set_xscale('log')
 	plt.ylabel("Q")
-	ax2 = ax.twinx()
-	ax2.set_ylabel("Leaf Nodes")
-	print(network_sizes, leaves_amount)
-	ax2.bar(x=network_sizes, width=0.1, height=leaves_amount, fc=(0, 0, 0, 0.1))
 	ax.legend(["{}, LNE:{}".format(method_dict[setting[1]],setting[2]) for setting in q_dict.keys()])
 	plt.savefig('modularityPlot.png')
 
@@ -116,8 +117,5 @@ if __name__ == "__main__":
 	plt.xlabel("n")
 	ax.set_xscale('log')
 	plt.ylabel("Time (s)")
-	ax2 = ax.twinx()
-	ax2.set_ylabel("Leaf Nodes")
-	ax2.bar(x=network_sizes, width=0.1 ,height=leaves_amount, fc=(0, 0, 0, 0.1))
 	ax.legend(["{}, LNE:{}".format(method_dict[setting[1]],setting[2]) for setting in t_dict.keys()])
 	plt.savefig('timePlot.png')
