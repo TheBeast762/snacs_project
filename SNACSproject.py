@@ -21,12 +21,6 @@ def readNetwork(filename, directed=True):
 	print("reading {}...".format(filename))
 	return ig.Graph.Read_Ncol(open(filename), names=False, weights="if_present", directed=directed)
 
-def leafPrune(graph):#{leafNode, Connection}
-	leafNodes = [v.index for v in graph.vs.select(_degree_lt=2)]#all nodes degree 0-1
-	if len(leafNodes) == 0:
-		return [], []
-	return leafNodes, graph.subgraph(vertices=graph.vs.select(_degree_gt=1))
-
 def leafAdd(graph, partition, leafNodes):
 	if not leafNodes:
 		return partition
@@ -42,15 +36,14 @@ def leafAdd(graph, partition, leafNodes):
 		part.move_node(edge[0], partition._membership[edge[1]])
 	for edge in leafTargets:
 		part.move_node(edge[1], partition._membership[edge[0]])
-	part.renumber_communities()
 	return part
 
 def performExperiment(G, threshold, comm_select, leafExclude):
 	print("Full network size: ", G.vcount(), G.ecount())
 	if leafExclude:
-		leaves, subGraph = leafPrune(G)
+		leaves = [v.index for v in graph.vs.select(_degree_lt=2)]
+		subGraph = graph.subgraph(vertices=graph.vs.select(_degree_gt=1))
 		print("----- {} leafNodes found in the Network-----".format(len(leaves)))
-		print("Pruned network size: ", subGraph.vcount(), subGraph.ecount())
 		t_start = time.time()
 		part = louvain.find_partition(subGraph, louvain.ModularityVertexPartition, threshold=threshold, comm_select=comm_select)
 		part = leafAdd(G, part, leaves)
