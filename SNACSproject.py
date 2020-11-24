@@ -41,8 +41,8 @@ def leafAdd(graph, partition, leafNodes):
 def performExperiment(G, threshold, comm_select, leafExclude):
 	print("Full network size: ", G.vcount(), G.ecount())
 	if leafExclude:
-		leaves = [v.index for v in graph.vs.select(_degree_lt=2)]
-		subGraph = graph.subgraph(vertices=graph.vs.select(_degree_gt=1))
+		leaves = [v.index for v in G.vs.select(_degree_lt=2)]
+		subGraph = G.subgraph(vertices=G.vs.select(_degree_gt=1))
 		print("----- {} leafNodes found in the Network-----".format(len(leaves)))
 		t_start = time.time()
 		part = louvain.find_partition(subGraph, louvain.ModularityVertexPartition, threshold=threshold, comm_select=comm_select)
