@@ -29,7 +29,6 @@ def leafPrune(graph):#{leafNode, Connection}
   leafSources = [edge.tuple for edge in graph.es.select(_source_in=leafNodes)]#all edges connected to leaf nodes #leafEdgeData.attributes() if applicable
   leafTargets = [edge.tuple for edge in graph.es.select(_target_in=leafNodes)]
   graph.delete_edges(leafSources + leafTargets)
-  print("Pruned network size: ", graph.ecount())
   return leafSources, leafTargets, len(leafNodes)
 
 def leafAdd(graph, partition, leafSources, leafTargets):
@@ -49,6 +48,7 @@ def performExperiment(G, threshold, comm_select, leafExclude):
 	print("Full network size: ", G.vcount(), G.ecount())
 	if leafExclude:
 		leafSources, leafTargets, nLeaves = leafPrune(G)
+		print("Pruned network size: ", G.ecount())
 		print("----- {} leafNodes found in the Network-----".format(nLeaves))
 		t_start = time.time()
 		part = louvain.find_partition(G, louvain.ModularityVertexPartition, threshold=threshold, comm_select=comm_select)
@@ -68,14 +68,13 @@ if __name__ == "__main__":
 	# 3 = RAND_COMM
 	# 4 = RAND_NEIGH_COMM (Traag's Improved Method)
 	method_dict = {1: "ALL_COMMS", 2: "ALL_NEIGH_COMMS", 3: "RAND_COMM", 4:"RAND_NEIGH_COMM"}
-	settings_list = [(0.0, 2, False), (0.0, 2, True), (0.0, 4, False), (0.0, 4, True)]#threshold, comm_select, leaf_node_exclusion
+	settings_list = [(0.15, 2, False), (0.1, 2, False), (0.01, 2, False), (0.0, 2, False), (0.15, 4, False), (0.1, 4, False), (0.01, 4, False), (0.0, 4, False)]#threshold, comm_select, leaf_node_exclusion
 	networks = [readNetwork("rec-amazon.tsv"), readNetwork("soc-academia.tsv"), readNetwork("rt-higgs.tsv"), readNetwork("inf-roadNet-PA.tsv"), readNetwork("inf-netherlands_osm.tsv", False)]#
 	n_settings = len(settings_list)
 	ind = np.arange(len(networks))
 	q_dict = {}
 	t_dict = {}
 	network_sizes = []
-	nLeaves = 0
 
 	for network in networks:
 		network_size = network.vcount()
@@ -97,7 +96,7 @@ if __name__ == "__main__":
 	print("Start plotting...")
 	f, ax = plt.subplots(figsize=(10,8))
 	for ix, val in enumerate(q_dict.values()):#setting: [modularity]
-		plt.bar(ind + ix*0.1, val, width = 0.1, align="edge")
+		plt.bar(ind + ix*0.1, val, width = 0.25, align="edge")
 	plt.xticks(ticks=range(len(network_sizes)), labels=network_sizes)
 	plt.ylabel("Q")
 	ax.legend(["{}, LNE:{}".format(method_dict[setting[1]],setting[2]) for setting in q_dict.keys()])
@@ -106,8 +105,8 @@ if __name__ == "__main__":
 	f, ax = plt.subplots(figsize=(10,8))
 	bars = []
 	for ix, val in enumerate(t_dict.values()):#setting: [modularity]
-		bars.append(plt.bar(ind + ix*0.1, [tup[0] for tup in val], width = 0.1))
-		plt.bar(ind + ix*0.1, [tup[1] for tup in val], width = 0.1, bottom=[tup[0] for tup in val], color='b')
+		bars.append(plt.bar(ind + ix*0.1, [tup[0] for tup in val], width = 0.25))
+		plt.bar(ind + ix*0.1, [tup[1] for tup in val], width = 0.25, bottom=[tup[0] for tup in val], color='b')
 	plt.xticks(ticks=range(len(network_sizes)), labels=network_sizes)
 	plt.ylabel("Time (s)")
 	ax.legend(bars, ["{}, LNE:{}".format(method_dict[setting[1]],setting[2]) for setting in t_dict.keys()])
