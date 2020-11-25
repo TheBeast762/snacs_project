@@ -100,6 +100,7 @@ if __name__ == "__main__":
 		#plt.bar(ind + ix*0.1, val, width = 0.09, align="edge")
 	#plt.xticks(ticks=range(len(network_sizes)), labels=network_sizes)#ticks param for x location
 	plt.xlabel("n")
+	ax.set_yscale('log')
 	ax.set_xscale('log')
 	plt.ylabel("Q")
 	ax.legend(["τ:{}, {}".format(setting[0], method_dict[setting[1]]) for setting in q_dict.keys()])
@@ -114,6 +115,7 @@ if __name__ == "__main__":
 		#plt.bar(ind + ix*0.1, [tup[1] for tup in val], width = 0.09, bottom=[tup[0] for tup in val], color='b')
 	#plt.xticks(ticks=range(len(network_sizes)), labels=network_sizes)
 	ax.set_xscale('log')
+	ax.set_yscale('log')
 	plt.xlabel("n")
 	plt.ylabel("Time (s)")
 	ax.legend(["τ:{}, {}".format(setting[0], method_dict[setting[1]]) for setting in q_dict.keys()])#bars,
