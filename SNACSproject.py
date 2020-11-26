@@ -54,12 +54,12 @@ def performExperiment(G, threshold, comm_select, leafExclude):
 		part = louvain.find_partition(G, louvain.ModularityVertexPartition, threshold=threshold, comm_select=comm_select)
 		part, leafTime = leafAdd(G, part, leafSources, leafTargets)
 		t_end = time.time()
-		return part.quality(), (t_end-t_start), leafTime
+		return part.quality(), (t_end-t_start), leafTime, nLeaves
 	else: 
 		t_start = time.time()
 		part = louvain.find_partition(G, louvain.ModularityVertexPartition, threshold=threshold, comm_select=comm_select)
 		t_end = time.time()
-	return part.quality(), (t_end-t_start), 0.0, nLeaves
+	return part.quality(), (t_end-t_start), 0.0, []
 
 if __name__ == "__main__":
 	#Community Select methods:
