@@ -94,7 +94,7 @@ if __name__ == "__main__":
 	print("Start plotting...")
 	f, ax = plt.subplots(figsize=(10,8))
 	for ix, val in enumerate(q_dict.values()):#setting: [modularity]
-		print(network_sizes, val)
+		print(val)
 		plt.scatter(network_sizes, val)
 		plt.plot(network_sizes, val)
 		#plt.bar(ind + ix*0.1, val, width = 0.09, align="edge")
@@ -109,6 +109,7 @@ if __name__ == "__main__":
 	f, ax = plt.subplots(figsize=(10,8))
 	#bars = []
 	for ix, val in enumerate(t_dict.values()):#setting: [modularity]
+		print(val)
 		plt.scatter(network_sizes, [tup[0] for tup in val])
 		plt.plot(network_sizes, [tup[0] for tup in val])
 		#bars.append(plt.bar(ind + ix*0.1, [tup[0] for tup in val], width = 0.09))
