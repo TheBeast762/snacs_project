@@ -59,7 +59,7 @@ def performExperiment(G, threshold, comm_select, leafExclude):
 		t_start = time.time()
 		part = louvain.find_partition(G, louvain.ModularityVertexPartition, threshold=threshold, comm_select=comm_select)
 		t_end = time.time()
-	return part.quality(), (t_end-t_start), 0.0
+	return part.quality(), (t_end-t_start), 0.0, nLeaves
 
 if __name__ == "__main__":
 	#Community Select methods:
@@ -68,13 +68,14 @@ if __name__ == "__main__":
 	# 3 = RAND_COMM
 	# 4 = RAND_NEIGH_COMM (Traag's Improved Method)
 	method_dict = {1: "ALL_COMMS", 2: "ALL_NEIGH_COMMS", 3: "RAND_COMM", 4:"RAND_NEIGH_COMM"}
-	settings_list = [(0.0, 2, False), (0.01, 2, False), (0.02, 2, False), (0.03, 2, False), (0.04, 2, False), (0.05, 2, False), (0.06, 2, False), (0.07, 2, False), (0.08, 2, False), (0.09, 2, False), (0.1, 2, False), (0.11, 2, False), (0.12, 2, False), (0.13, 2, False), (0.14, 2, False), (0.15, 2, False)]#threshold, comm_select, leaf_node_exclusion
-	networks = [readNetwork("rec-amazon.tsv", False), readNetwork("soc-academia.tsv"), readNetwork("rt-higgs.tsv"), readNetwork("webbase-1M.tsv"), readNetwork("inf-netherlands_osm.tsv", False), readNetwork("venturiLevel3.tsv", False)]
+	settings_list = [(0.0, 2, False), (0.0, 2, True)]
+	networks = [readNetwork("rec-amazon.tsv", False), readNetwork("soc-academia.tsv"), readNetwork("rt-higgs.tsv"), readNetwork("webbase-1M.tsv"), readNetwork("inf-netherlands_osm.tsv", False), readNetwork("venturiLevel3.tsv", False)]# , , , 
 	n_settings = len(settings_list)
 	ind = np.arange(len(networks))
 	q_dict = {}
 	t_dict = {}
 	network_sizes = []
+	nLeaves = []
 
 	for network in networks:
 		network_size = network.vcount()
@@ -82,7 +83,8 @@ if __name__ == "__main__":
 		for setting in settings_list:
 			print("________________________________________")
 			print("LeafNodeExclusion used?: ", setting[2])
-			q, t, leafTime = performExperiment(network, setting[0], setting[1], setting[2])
+			q, t, leafTime, l = performExperiment(network, setting[0], setting[1], setting[2])
+			nLeaves.append(l)
 			print(q,t)
 			if setting in q_dict:
 				q_dict[setting].append(q)
@@ -94,34 +96,7 @@ if __name__ == "__main__":
 	print("Start plotting...")
 	print(q_dict)
 	print(t_dict)
-	'''
-	f, ax = plt.subplots(figsize=(10,8))
-	for ix, val in enumerate(q_dict.values()):#setting: [modularity]
-		print(val)
-		plt.scatter(network_sizes, val)
-		plt.plot(network_sizes, val)
-		#plt.bar(ind + ix*0.1, val, width = 0.09, align="edge")
-	#plt.xticks(ticks=range(len(network_sizes)), labels=network_sizes)#ticks param for x location
-	plt.xlabel("n")
-	ax.set_yscale('log')
-	ax.set_xscale('log')
-	plt.ylabel("Q")
-	ax.legend(["τ:{}, {}".format(setting[0], method_dict[setting[1]]) for setting in q_dict.keys()])
-	plt.savefig('modularityPlot.png')
+	print(nLeaves)
+	print(network_sizes)
 
-	f, ax = plt.subplots(figsize=(10,8))
-	#bars = []
-	for ix, val in enumerate(t_dict.values()):#setting: [modularity]
-		print(val)
-		plt.scatter(network_sizes, [tup[0] for tup in val])
-		plt.plot(network_sizes, [tup[0] for tup in val])
-		#bars.append(plt.bar(ind + ix*0.1, [tup[0] for tup in val], width = 0.09))
-		#plt.bar(ind + ix*0.1, [tup[1] for tup in val], width = 0.09, bottom=[tup[0] for tup in val], color='b')
-	#plt.xticks(ticks=range(len(network_sizes)), labels=network_sizes)
-	ax.set_xscale('log')
-	ax.set_yscale('log')
-	plt.xlabel("n")
-	plt.ylabel("Time (s)")
-	ax.legend(["τ:{}, {}".format(setting[0], method_dict[setting[1]]) for setting in q_dict.keys()])#bars,
-	plt.savefig('timePlot.png')
-	'''
+	
