@@ -89,8 +89,8 @@ if __name__ == "__main__":
 				q, t, leafTime, l = performExperiment(network, setting[0], setting[1], setting[2])
 				q_single_run.append(q)
 				t_single_run.append(t)
-				q = sum(q_single_run) / len(q_single_run)
-				t = sum(t_single_run) / len(t_single_run)
+			q = sum(q_single_run) / len(q_single_run)
+			t = sum(t_single_run) / len(t_single_run)
 			print(q,t)
 			if setting in q_dict:
 				q_dict[setting].append(q)
