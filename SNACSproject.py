@@ -68,8 +68,8 @@ if __name__ == "__main__":
 	# 3 = RAND_COMM
 	# 4 = RAND_NEIGH_COMM (Traag's Improved Method)
 	method_dict = {1: "ALL_COMMS", 2: "ALL_NEIGH_COMMS", 3: "RAND_COMM", 4:"RAND_NEIGH_COMM"}
-	settings_list = [(0.0, 2, False), (0.01, 2, False), (0.02, 2, False), (0.03, 2, False), (0.04, 2, False), (0.05, 2, False), (0.06, 2, False), (0.07, 2, False), (0.08, 2, False), (0.09, 2, False), (0.1, 2, False), (0.11, 2, False), (0.12, 2, False), (0.13, 2, False), (0.14, 2, False), (0.15, 2, False)]
-	networks = [readNetwork("rt-higgs.tsv"), readNetwork("webbase-1M.tsv"), readNetwork("inf-netherlands_osm.tsv", False)]#readNetwork("rec-amazon.tsv", False), readNetwork("soc-academia.tsv"), readNetwork("venturiLevel3.tsv", False)
+	settings_list = [(0.0, 2, False), (0.0, 2, True)]
+	networks = [readNetwork("DIMACS10.tsv")]#readNetwork("rec-amazon.tsv", False), readNetwork("soc-academia.tsv"), readNetwork("rt-higgs.tsv"), readNetwork("webbase-1M.tsv"), readNetwork("inf-netherlands_osm.tsv", False), readNetwork("venturiLevel3.tsv", False)
 	n_settings = len(settings_list)
 	ind = np.arange(len(networks))
 	q_dict = {}
