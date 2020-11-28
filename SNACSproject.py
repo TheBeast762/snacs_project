@@ -14,7 +14,7 @@
 #python3 setup.py --use-pkg-config install
 import louvain
 import igraph as ig
-import time
+import time 
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -42,8 +42,7 @@ def leafAdd(graph, partition, leafSources, leafTargets):
 	partition.renumber_communities()
 	return partition, (t_end-t_start)
 
-def performExperiment(G, threshold, comm_select, leafExclude, q, t, leafTime):
-	leafTime = 0.0
+def performExperiment(G, threshold, comm_select, leafExclude):
 	print("Full network size: ", G.vcount(), G.ecount())
 	if leafExclude:
 		leafSources, leafTargets, nLeaves = leafPrune(G)
@@ -53,14 +52,12 @@ def performExperiment(G, threshold, comm_select, leafExclude, q, t, leafTime):
 		part = louvain.find_partition(G, louvain.ModularityVertexPartition, threshold=threshold, comm_select=comm_select)
 		part, leafTime = leafAdd(G, part, leafSources, leafTargets)
 		t_end = time.time()
-		q = part.quality()
-		t = (t_end-t_start)
+		return part.quality(), (t_end-t_start), leafTime
 	else: 
 		t_start = time.time()
 		part = louvain.find_partition(G, louvain.ModularityVertexPartition, threshold=threshold, comm_select=comm_select)
 		t_end = time.time()
-		q = part.quality() 
-		t = (t_end-t_start)
+	return part.quality(), (t_end-t_start), 0.0
 
 if __name__ == "__main__":
 	#Community Select methods:
