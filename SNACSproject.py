@@ -24,8 +24,6 @@ def readNetwork(filename, directed=True):
 
 def leafPrune(graph):#{leafNode, Connection}
   leafNodes = [v.index for v in graph.vs.select(_degree_eq=1)]#all nodes degree 1
-  if len(leafNodes) == 0:
-  	return [], [], 0
   leafSources = [edge.tuple for edge in graph.es.select(_source_in=leafNodes)]#all edges connected to leaf nodes #leafEdgeData.attributes() if applicable
   leafTargets = [edge.tuple for edge in graph.es.select(_target_in=leafNodes)]
   graph.delete_edges(leafSources + leafTargets)
@@ -68,8 +66,8 @@ if __name__ == "__main__":
 	# 3 = RAND_COMM
 	# 4 = RAND_NEIGH_COMM (Traag's Improved Method)
 	method_dict = {1: "ALL_COMMS", 2: "ALL_NEIGH_COMMS", 3: "RAND_COMM", 4:"RAND_NEIGH_COMM"}
-	settings_list = [(0.0, 2, False), (0.0, 2, True)]
-	networks = [readNetwork("DIMACS10.tsv")]#readNetwork("rec-amazon.tsv", False), readNetwork("soc-academia.tsv"), readNetwork("rt-higgs.tsv"), readNetwork("webbase-1M.tsv"), readNetwork("inf-netherlands_osm.tsv", False), readNetwork("venturiLevel3.tsv", False)
+	settings_list = [(0.0, 2, True), (0.0, 2, False)]#[(0.0, 1, False), (0.0, 2, False), (0.0, 3, False), (0.0, 4, False)]
+	networks = [readNetwork("DIMACS10.tsv", directed=False)]#readNetwork("rec-amazon.tsv", False), readNetwork("soc-academia.tsv"), readNetwork("rt-higgs.tsv"), readNetwork("webbase-1M.tsv"), readNetwork("inf-netherlands_osm.tsv", False), readNetwork("venturiLevel3.tsv", False),
 	n_settings = len(settings_list)
 	ind = np.arange(len(networks))
 	q_dict = {}
@@ -77,20 +75,14 @@ if __name__ == "__main__":
 	network_sizes = []
 	nLeaves = []
 
-	for network in networks:
+	for network in networks:#within 2 hours, if no result, cancel run
 		network_size = network.vcount()
 		network_sizes.append(network_size)
 		for setting in settings_list:
-			q_single_run = []
-			t_single_run = []
 			print("________________________________________")
 			print("LeafNodeExclusion used?: ", setting[2])
 			for i in range(10):
 				q, t, leafTime, l = performExperiment(network, setting[0], setting[1], setting[2])
-				q_single_run.append(q)
-				t_single_run.append(t)
-			q = sum(q_single_run) / len(q_single_run)
-			t = sum(t_single_run) / len(t_single_run)
 			print(q,t)
 			if setting in q_dict:
 				q_dict[setting].append(q)
