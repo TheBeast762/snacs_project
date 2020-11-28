@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 #Method Comparison
-#Three seperate graphs for three networks: 200K 400K 1M
 
 q_dict = #setting: [q, q, ...]
 t_dict = #setting: [(t, leafTime), (t, leafTime), ...]
@@ -11,8 +10,9 @@ nLeaves = [19580, 18113, 282735, 0, 129231, , 54]
 fig, ax1 = plt.subplots()
 ax1.set_xlabel('n')
 ax1.set_ylabel('Q')
-ax1.plot(network_sizes, [val[ix] for val in q_dict.values()])
-ax1.scatter(network_sizes, [val[ix] for val in q_dict.values()])
+for _, val in q_dict.items():
+	ax1.plot(network_sizes, val)
+	ax1.scatter(network_sizes, val)
 ax1.legend()
 
 plt.title("Community Select Method Q")
@@ -23,8 +23,9 @@ plt.savefig('methodModularity.png')
 fig, ax1 = plt.subplots()
 ax1.set_xlabel('n')
 ax1.set_ylabel('Time (s)')
-ax1.plot(network_sizes, [val[ix] for val in t_dict.values()])
-ax1.scatter(network_sizes, [val[ix] for val in t_dict.values()])
+for _, val in t_dict.items():
+	ax1.plot(network_sizes, val)
+	ax1.scatter(network_sizes, val)
 ax1.legend()
 
 plt.title("Community Select Method Time (s)")
