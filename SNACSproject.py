@@ -14,7 +14,7 @@
 #python3 setup.py --use-pkg-config install
 import louvain
 import igraph as ig
-import time 
+import time
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -42,7 +42,8 @@ def leafAdd(graph, partition, leafSources, leafTargets):
 	partition.renumber_communities()
 	return partition, (t_end-t_start)
 
-def performExperiment(G, threshold, comm_select, leafExclude):
+def performExperiment(G, threshold, comm_select, leafExclude, q, t, leafTime):
+	leafTime = 0.0
 	print("Full network size: ", G.vcount(), G.ecount())
 	if leafExclude:
 		leafSources, leafTargets, nLeaves = leafPrune(G)
@@ -52,12 +53,14 @@ def performExperiment(G, threshold, comm_select, leafExclude):
 		part = louvain.find_partition(G, louvain.ModularityVertexPartition, threshold=threshold, comm_select=comm_select)
 		part, leafTime = leafAdd(G, part, leafSources, leafTargets)
 		t_end = time.time()
-		return part.quality(), (t_end-t_start), leafTime
+		q = part.quality()
+		t = (t_end-t_start)
 	else: 
 		t_start = time.time()
 		part = louvain.find_partition(G, louvain.ModularityVertexPartition, threshold=threshold, comm_select=comm_select)
 		t_end = time.time()
-	return part.quality(), (t_end-t_start), 0.0
+		q = part.quality() 
+		t = (t_end-t_start)
 
 if __name__ == "__main__":
 	#Community Select methods:
@@ -66,8 +69,8 @@ if __name__ == "__main__":
 	# 3 = RAND_COMM
 	# 4 = RAND_NEIGH_COMM (Traag's Improved Method)
 	method_dict = {1: "ALL_COMMS", 2: "ALL_NEIGH_COMMS", 3: "RAND_COMM", 4:"RAND_NEIGH_COMM"}
-	settings_list = [(0.0, 2, False), (0.0, 2, True)]#[(0.0, 1, False), (0.0, 2, False), (0.0, 3, False), (0.0, 4, False)]
-	networks = [readNetwork("DIMACS10.tsv", directed=False)]#[readNetwork("rec-amazon.tsv", False), readNetwork("soc-academia.tsv"), readNetwork("rt-higgs.tsv"), readNetwork("webbase-1M.tsv"), readNetwork("inf-netherlands_osm.tsv", False), readNetwork("venturiLevel3.tsv", False), readNetwork("DIMACS10.tsv", directed=False)]
+	settings_list = [(0.0, 1, False), (0.0, 2, False), (0.0, 3, False), (0.0, 4, False)]
+	networks = [readNetwork("rec-amazon.tsv", False), readNetwork("soc-academia.tsv"), readNetwork("rt-higgs.tsv"), readNetwork("webbase-1M.tsv"), readNetwork("inf-netherlands_osm.tsv", False), readNetwork("venturiLevel3.tsv", False), readNetwork("DIMACS10.tsv", directed=False)]
 	n_settings = len(settings_list)
 	ind = np.arange(len(networks))
 	q_dict = {}
