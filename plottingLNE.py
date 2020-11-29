@@ -15,6 +15,7 @@ for ix, val in enumerate(q_dict.values()):#setting: [modularity]
 plt.xticks(ticks=range(len(network_sizes)), labels=network_sizes)#ticks param for x location
 plt.xlabel("n")
 plt.ylabel("Q")
+ax.set_yscale("log")
 ax.legend(["LNE:{}".format(setting[2]) for setting in q_dict.keys()])
 plt.savefig('modularityLNEPlot.png')
 

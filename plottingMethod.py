@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 
 q_dict = #setting: [q, q, ...]
 t_dict = #setting: [(t, leafTime), (t, leafTime), ...]
-network_sizes = [91813, 200169, 425008, 1000005, 2216688, , 4194301]
-nLeaves = [19580, 18113, 282735, 0, 129231, , 54]
+network_sizes = [91813, 200169, 425008, 1000005, 2216688, 3774768, 4194301]
+nLeaves = [19580, 18113, 282735, 0, 129231, 667336, 54]
 method_dict = {1: "ALL_COMMS", 2: "ALL_NEIGH_COMMS", 3: "RAND_COMM", 4:"RAND_NEIGH_COMM"}
 
 #Plot Modularity

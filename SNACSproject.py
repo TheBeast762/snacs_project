@@ -66,7 +66,7 @@ if __name__ == "__main__":
 	# 3 = RAND_COMM
 	# 4 = RAND_NEIGH_COMM (Traag's Improved Method)
 	method_dict = {1: "ALL_COMMS", 2: "ALL_NEIGH_COMMS", 3: "RAND_COMM", 4:"RAND_NEIGH_COMM"}
-	settings_list = [(0.0, 1, False), (0.0, 2, False), (0.0, 3, False), (0.0, 4, False)]
+	settings_list = [(0.0, 2, False), (0.0, 4, False)]
 	networks = [readNetwork("rec-amazon.tsv", False), readNetwork("soc-academia.tsv"), readNetwork("rt-higgs.tsv"), readNetwork("webbase-1M.tsv"), readNetwork("inf-netherlands_osm.tsv", False), readNetwork("venturiLevel3.tsv", False), readNetwork("DIMACS10.tsv", directed=False)]
 	n_settings = len(settings_list)
 	ind = np.arange(len(networks))
@@ -83,8 +83,8 @@ if __name__ == "__main__":
 			t_single_run = []
 			print("________________________________________")
 			print("LNE used?: ", setting[2])
-			for i in range(10):
-				q, t, leafTime, l = performExperiment(network, setting[0], setting[1], setting[2])
+			for i in range(5):
+				q, t, leafTime = performExperiment(network, setting[0], setting[1], setting[2])
 				q_single_run.append(q)
 				t_single_run.append(t)
 			q = sum(q_single_run) / len(q_single_run)
