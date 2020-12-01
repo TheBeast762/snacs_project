@@ -66,7 +66,7 @@ if __name__ == "__main__":
 	# 3 = RAND_COMM
 	# 4 = RAND_NEIGH_COMM (Traag's Improved Method)
 	method_dict = {1: "ALL_COMMS", 2: "ALL_NEIGH_COMMS", 3: "RAND_COMM", 4:"RAND_NEIGH_COMM"}
-	settings_list = [(0.0, 3, False)]
+	settings_list = [(0.0, 2, False), (0.0, 4, False)]
 	networks = [readNetwork("cit-patent.tsv"), readNetwork("DIMACS10.tsv", directed=False)]#[readNetwork("rec-amazon.tsv", False)]#, readNetwork("soc-academia.tsv"), readNetwork("rt-higgs.tsv"), readNetwork("webbase-1M.tsv"), readNetwork("inf-netherlands_osm.tsv", False), readNetwork("cit-patent.tsv"), readNetwork("DIMACS10.tsv", directed=False)]
 	n_settings = len(settings_list)
 	ind = np.arange(len(networks))
@@ -78,9 +78,16 @@ if __name__ == "__main__":
 		network_size = network.vcount()
 		network_sizes.append(network_size)
 		for setting in settings_list:
+			q_single_runs = []
+			t_single_runs = []
 			print("________________________________________")
 			print("LNE used?: ", setting[2])
-			q, t, leafTime = performExperiment(network, setting[0], setting[1], setting[2])
+			for i in range(10):
+				q, t, leafTime = performExperiment(network, setting[0], setting[1], setting[2])
+				q_single_runs.append(q)
+				t_single_runs.append(t)
+			q = sum(q_single_runs) / 10
+			t = sum(t_single_runs) / 10
 			print(q,t)
 			if setting in q_dict:
 				q_dict[setting].append(q)
