@@ -78,16 +78,9 @@ if __name__ == "__main__":
 		network_size = network.vcount()
 		network_sizes.append(network_size)
 		for setting in settings_list:
-			q_single_run = []
-			t_single_run = []
 			print("________________________________________")
 			print("LNE used?: ", setting[2])
-			for i in range(10):
-				q, t, leafTime = performExperiment(network, setting[0], setting[1], setting[2])
-				q_single_run.append(q)
-				t_single_run.append(t)
-			q = sum(q_single_run) / len(q_single_run)
-			t = sum(t_single_run) / len(t_single_run)
+			q, t, leafTime = performExperiment(network, setting[0], setting[1], setting[2])
 			print(q,t)
 			if setting in q_dict:
 				q_dict[setting].append(q)
