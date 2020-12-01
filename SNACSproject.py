@@ -66,14 +66,13 @@ if __name__ == "__main__":
 	# 3 = RAND_COMM
 	# 4 = RAND_NEIGH_COMM (Traag's Improved Method)
 	method_dict = {1: "ALL_COMMS", 2: "ALL_NEIGH_COMMS", 3: "RAND_COMM", 4:"RAND_NEIGH_COMM"}
-	settings_list = [(0.0, 2, False), (0.0, 4, False)]
-	networks = [readNetwork("rec-amazon.tsv", False), readNetwork("soc-academia.tsv"), readNetwork("rt-higgs.tsv"), readNetwork("webbase-1M.tsv"), readNetwork("inf-netherlands_osm.tsv", False), readNetwork("cit-patent.tsv"), readNetwork("DIMACS10.tsv", directed=False)]
+	settings_list = [(0.0, 1, False), (0.0, 3, False)]
+	networks = [readNetwork("rec-amazon.tsv", False)]#, readNetwork("soc-academia.tsv"), readNetwork("rt-higgs.tsv"), readNetwork("webbase-1M.tsv"), readNetwork("inf-netherlands_osm.tsv", False), readNetwork("cit-patent.tsv"), readNetwork("DIMACS10.tsv", directed=False)]
 	n_settings = len(settings_list)
 	ind = np.arange(len(networks))
 	q_dict = {}
 	t_dict = {}
 	network_sizes = []
-	nLeaves = []
 
 	for network in networks:#within 2 hours, if no result, cancel run
 		network_size = network.vcount()
@@ -100,7 +99,6 @@ if __name__ == "__main__":
 	print("Start plotting...")
 	print(q_dict)
 	print(t_dict)
-	print(nLeaves)
 	print(network_sizes)
 
 	
