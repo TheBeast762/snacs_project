@@ -17,6 +17,7 @@ import igraph as ig
 import time 
 import matplotlib.pyplot as plt
 import numpy as np
+import h5py
 
 def readNetwork(filename, directed=True):
 	print("reading {}...".format(filename))
@@ -65,9 +66,12 @@ if __name__ == "__main__":
 	# 2 = ALL_NEIGH_COMMS 
 	# 3 = RAND_COMM
 	# 4 = RAND_NEIGH_COMM (Traag's Improved Method)
+	np.savetxt('project.tsv', h5py.File('project.mat')['Problem']['A']['data'],
+	           fmt=['%s'], delimiter=delimchar, header='\t'.join(['1', '2']))
+
 	method_dict = {1: "ALL_COMMS", 2: "ALL_NEIGH_COMMS", 3: "RAND_COMM", 4:"RAND_NEIGH_COMM"}
-	settings_list = [(0.0, 2, False), (0.0, 4, False)]
-	networks = [readNetwork("rec-amazon.tsv", False)]#, readNetwork("soc-academia.tsv"), readNetwork("rt-higgs.tsv"), readNetwork("webbase-1M.tsv"), readNetwork("inf-netherlands_osm.tsv", False), readNetwork("cit-patent.tsv"), readNetwork("DIMACS10.tsv", directed=False)]
+	settings_list = [(0.05, 2, True), (0.05, 2, False)]
+	networks = []#[readNetwork("rec-amazon.tsv", False), readNetwork("soc-academia.tsv"), readNetwork("rt-higgs.tsv"), readNetwork("webbase-1M.tsv"), readNetwork("inf-netherlands_osm.tsv", False), readNetwork("cit-patent.tsv"), readNetwork("DIMACS10.tsv", directed=False)]
 	n_settings = len(settings_list)
 	ind = np.arange(len(networks))
 	q_dict = {}
