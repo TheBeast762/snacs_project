@@ -18,14 +18,16 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 import h5py
+from scipy import sparse
 
 def readNetwork(filename, directed=True):
 	if filename.endswith('.mat'):
-		print(h5py.File('project.mat')['Problem']['A']['data'])
-		delimchar = '\t'
-		np.savetxt('project.tsv', h5py.File('project.mat')['Problem']['A']['data'],
-	           fmt=['%s'], delimiter=delimchar, header=delimchar.join(['1', '2']))
-		return ig.Graph.Read_Ncol(open('project.tsv'), names=False, weights="if_present", directed=directed)
+		with h5py.File('project.mat') as mat:
+			graph = sparse.csc_matrix((mat['Problem']['A']['data'], mat['Problem']['A']['ir'], mat['Problem']['A']['jc']))
+			print(np.shape(graph))
+		#np.savetxt('project.tsv', h5py.File('project.mat')['Problem']['A']['data'],
+	           #fmt=['%s'], delimiter='\t', header='\t'.join(['1', '2']))
+		return ig.Graph.Read_Adjacency(graph) 
 	else:
 		print("reading {}...".format(filename))
 		return ig.Graph.Read_Ncol(open(filename), names=False, weights="if_present", directed=directed)
