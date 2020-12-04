@@ -17,20 +17,10 @@ import igraph as ig
 import time 
 import matplotlib.pyplot as plt
 import numpy as np
-import h5py
-from scipy import sparse
 
 def readNetwork(filename, directed=True):
-	if filename.endswith('.mat'):
-		with h5py.File('project.mat') as mat:
-			graph = sparse.csc_matrix((mat['Problem']['A']['data'], mat['Problem']['A']['ir'], mat['Problem']['A']['jc']))
-			print(np.shape(graph))
-		#np.savetxt('project.tsv', h5py.File('project.mat')['Problem']['A']['data'],
-	           #fmt=['%s'], delimiter='\t', header='\t'.join(['1', '2']))
-		return ig.Graph.Read_Adjacency(graph) 
-	else:
-		print("reading {}...".format(filename))
-		return ig.Graph.Read_Ncol(open(filename), names=False, weights="if_present", directed=directed)
+	print("reading {}...".format(filename))
+	return ig.Graph.Read_Ncol(open(filename), names=False, weights="if_present", directed=directed)
 
 def leafPrune(graph):#{leafNode, Connection}
   leafNodes = [v.index for v in graph.vs.select(_degree_eq=1)]#all nodes degree 1
@@ -78,7 +68,7 @@ if __name__ == "__main__":
 
 	method_dict = {1: "ALL_COMMS", 2: "ALL_NEIGH_COMMS", 3: "RAND_COMM", 4:"RAND_NEIGH_COMM"}
 	settings_list = [(0.05, 2, True), (0.05, 2, False)]
-	networks = [readNetwork('project.mat', directed=False)]#[readNetwork("rec-amazon.tsv", False), readNetwork("soc-academia.tsv"), readNetwork("rt-higgs.tsv"), readNetwork("webbase-1M.tsv"), readNetwork("inf-netherlands_osm.tsv", False), readNetwork("cit-patent.tsv"), readNetwork("DIMACS10.tsv", directed=False)]
+	networks = [readNetwork('mini.tsv', directed=False)]#[readNetwork("rec-amazon.tsv", False), readNetwork("soc-academia.tsv"), readNetwork("rt-higgs.tsv"), readNetwork("webbase-1M.tsv"), readNetwork("inf-netherlands_osm.tsv", False), readNetwork("cit-patent.tsv"), readNetwork("DIMACS10.tsv", directed=False)]
 	n_settings = len(settings_list)
 	ind = np.arange(len(networks))
 	q_dict = {}
